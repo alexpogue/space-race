@@ -25,14 +25,22 @@ fn main() {
             Err(err)   => panic!("failed to create window: {}", err)
         };
 
+    /*
     let mut renderer = match window
         .renderer()
         .build() {
             Ok(renderer) => renderer,
             Err(err) => panic!("failed to create renderer: {}", err)
         };
+        */
+    let mut canvas = match window
+        .into_canvas()
+        .build() {
+            Ok(canvas) => canvas,
+            Err(err) => panic!("failed to create canvas: {}", err)
+        };
 
-    let mut limiter = ratelimiter::RateLimiter::new(60);
+    let mut limiter = ratelimiter::RateLimiter::new(30);
 
     let mut rect = Rect::new(10, 10, 10, 10);
 
@@ -43,7 +51,7 @@ fn main() {
 
     let mut ship = ship::Ship::new(50, 50);
 
-    let mut main_loop = || {
+    let mut main_loop = move || {
         let pressed_keys:HashSet<Keycode> = events.keyboard_state().pressed_scancodes()
             .filter_map(Keycode::from_scancode)
             .collect();
@@ -74,12 +82,12 @@ fn main() {
         rect.y = ship.y();
         ship.update();
 
-        let _ = renderer.set_draw_color(black);
-        let _ = renderer.clear();
-        let _ = renderer.set_draw_color(white);
-        let _ = renderer.fill_rect(rect);
-        let _ = renderer.present();
-        limiter.limit()
+        let _ = canvas.set_draw_color(black);
+        let _ = canvas.clear();
+        let _ = canvas.set_draw_color(white);
+        let _ = canvas.fill_rect(rect);
+        let _ = canvas.present();
+        limiter.limit();
     };
 
     #[cfg(target_os = "emscripten")]
